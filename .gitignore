@@ -46,3 +46,6 @@ yarn-error.*
 # local icon work / previews (not shipping assets)
 assets/icon-preview.png
 assets/icon-source.jpg
+
+# EAS local credentials (prefer remote / never commit)
+credentials.json
