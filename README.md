@@ -1,6 +1,6 @@
 # Cognation Mobile
 
-Lean Expo (React Native) TypeScript app for Cognation — calm wellness aesthetic, side-drawer navigation, **Supabase auth** (slice 1).
+Lean Expo (React Native) TypeScript app for Cognation — calm wellness aesthetic, **Expo Router** side-drawer navigation, **Supabase auth** (slices 1–2).
 
 No public Demo unlock, no SeedOps secrets, no Instagram/copycat feed patterns.
 
@@ -8,15 +8,17 @@ No public Demo unlock, no SeedOps secrets, no Instagram/copycat feed patterns.
 
 | Screen | Role |
 |--------|------|
-| **Tower** | Home / personal base |
+| **Tower** | Home / personal base (`/`) |
 | **Commune** | 1:1 featured mix; nested stack → Classroom, Dating |
 | **News** | Curated updates placeholder |
 | **Circle** | Close community placeholder |
 | **Profile** | Sign in / sign up / sign out + settings placeholder |
 
-**Under Commune** (not drawer roots): **Classroom** (learning), **Dating** (intentional connection) — opened via in-screen section links / nested stack.
+**Under Commune** (not drawer roots): **Classroom** (`/commune/classroom`), **Dating** (`/commune/dating`) — opened via in-screen section links / nested stack.
 
 Primary navigation is a **side drawer**, not bottom tabs. Visual language: dark navy, soft glow accents.
+
+Routes live under `src/app/` (Expo Router file-based). Non-route code stays in `src/` (`auth/`, `screens/`, `components/`, `theme/`, `lib/`).
 
 ## Environment (Supabase auth)
 
@@ -52,7 +54,7 @@ cp .env.example .env   # then fill real URL + anon key
 npx expo start
 ```
 
-Scan the QR with **Expo Go** (same Wi‑Fi), open **Profile** in the drawer:
+Entry is `expo-router/entry` (see `package.json` `main`). Scan the QR with **Expo Go** (same Wi‑Fi), open **Profile** in the drawer:
 
 - Without env: “Env not set” card.
 - With env: Sign in / Sign up form → create or use a real Cognation account → Signed in shows email → Sign out clears session.
@@ -67,7 +69,7 @@ Useful scripts:
 ## Stack
 
 - Expo SDK 57 + TypeScript
-- React Navigation drawer + nested native stack under Commune
+- **Expo Router** drawer + nested stack under Commune (`src/app/`)
 - `@supabase/supabase-js` + `expo-sqlite` session storage
 - Local theme under `src/theme/`
 
@@ -75,7 +77,8 @@ Useful scripts:
 
 | Slice | Scope |
 |-------|--------|
-| 2 | Expo Router migration |
+| 1 | ✅ Supabase auth |
+| 2 | ✅ Expo Router migration |
 | 3 | Full Tower / Profile data wire |
 | 4 | EAS builds |
 
