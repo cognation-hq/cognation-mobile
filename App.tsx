@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
+import { AuthProvider } from './src/auth/AuthContext';
 import { DrawerNavigator } from './src/navigation/DrawerNavigator';
 import { colors } from './src/theme/colors';
 
@@ -22,10 +23,12 @@ const navTheme = {
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
-      <NavigationContainer theme={navTheme}>
-        <StatusBar style="light" />
-        <DrawerNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer theme={navTheme}>
+          <StatusBar style="light" />
+          <DrawerNavigator />
+        </NavigationContainer>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }
