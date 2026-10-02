@@ -1,17 +1,15 @@
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ComingSoonBlock } from '../components/ComingSoonBlock';
 import { GlassCard } from '../components/GlassCard';
 import { MockPanel } from '../components/MockPanel';
 import { ScreenShell } from '../components/ScreenShell';
-import type { CommuneStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 
 const MIX_SLOTS = ['Classroom', 'Ad', 'Chat', 'Dating', 'Content'] as const;
 
 type Dest = {
-  screen: 'Classroom' | 'Dating';
+  href: '/commune/classroom' | '/commune/dating';
   label: string;
   blurb: string;
   accent: 'cyan' | 'magenta';
@@ -19,13 +17,13 @@ type Dest = {
 
 const DESTINATIONS: Dest[] = [
   {
-    screen: 'Classroom',
+    href: '/commune/classroom',
     label: 'Classroom',
     blurb: 'Learn at a human pace — lessons & sessions.',
     accent: 'cyan',
   },
   {
-    screen: 'Dating',
+    href: '/commune/dating',
     label: 'Dating',
     blurb: 'Intentional connection — not swipes as sport.',
     accent: 'magenta',
@@ -33,8 +31,7 @@ const DESTINATIONS: Dest[] = [
 ];
 
 export function CommuneScreen() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<CommuneStackParamList>>();
+  const router = useRouter();
 
   return (
     <ScreenShell
@@ -64,10 +61,10 @@ export function CommuneScreen() {
       <View style={styles.destList}>
         {DESTINATIONS.map((dest) => (
           <Pressable
-            key={dest.screen}
+            key={dest.href}
             accessibilityRole="button"
             accessibilityLabel={`Open ${dest.label}`}
-            onPress={() => navigation.navigate(dest.screen)}
+            onPress={() => router.push(dest.href)}
             style={({ pressed }) => pressed && styles.destPressed}
           >
             <GlassCard accent={dest.accent}>
