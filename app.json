@@ -24,6 +24,9 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "backgroundColor": "#000000"
-    }
+    },
+    "plugins": [
+      "expo-sqlite"
+    ]
   }
 }
