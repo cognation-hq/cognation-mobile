@@ -5,11 +5,11 @@ import { ScreenShell } from '../components/ScreenShell';
 export function CircleScreen() {
   return (
     <ScreenShell
-      title="Circle"
+      title="PULSE"
       subtitle="Close community — small by design."
     >
       <ComingSoonBlock heading="Trusted groups" accent="violet">
-        Circle will hold trusted groups and shared space. No fake members in
+        PULSE will hold trusted groups and shared space. No fake members in
         this shell.
       </ComingSoonBlock>
       <MockPanel

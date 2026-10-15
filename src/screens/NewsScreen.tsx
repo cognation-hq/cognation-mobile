@@ -4,7 +4,7 @@ import { ScreenShell } from '../components/ScreenShell';
 
 export function NewsScreen() {
   return (
-    <ScreenShell title="News" subtitle="Thoughtful updates — not a dopamine feed.">
+    <ScreenShell title="SIGNAL" subtitle="Thoughtful updates — not a dopamine feed.">
       <ComingSoonBlock heading="Curated reading" accent="violet">
         News will surface curated, calm reading. No backend or seed content in
         this shell.

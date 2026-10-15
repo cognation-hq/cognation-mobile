@@ -35,7 +35,7 @@ export function CommuneScreen() {
 
   return (
     <ScreenShell
-      title="Commune"
+      title="ECHO"
       subtitle="One-to-one featured mix — not an endless scroll."
     >
       <ComingSoonBlock
@@ -45,7 +45,7 @@ export function CommuneScreen() {
         footer="Shell only — no live queue, ads, or matching yet."
       >
         <Text style={styles.body}>
-          Commune surfaces a calm, intentional mix of moments across Cognation —
+          ECHO surfaces a calm, intentional mix of moments across Cognation —
           one at a time. Slots in this mix:
         </Text>
         <View style={styles.chips}>
@@ -57,7 +57,7 @@ export function CommuneScreen() {
         </View>
       </ComingSoonBlock>
 
-      <Text style={styles.sectionLabel}>Open under Commune</Text>
+      <Text style={styles.sectionLabel}>Open under ECHO</Text>
       <View style={styles.destList}>
         {DESTINATIONS.map((dest) => (
           <Pressable
