@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ReactElement, ReactNode } from 'react';
+import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme/colors';
 import { body, displayTitle } from '../theme/typography';
 import { HeroStrip } from './HeroStrip';
@@ -8,15 +8,17 @@ type Props = {
   title: string;
   subtitle?: string;
   children?: ReactNode;
+  refreshControl?: ReactElement<RefreshControlProps>;
 };
 
-export function ScreenShell({ title, subtitle, children }: Props) {
+export function ScreenShell({ title, subtitle, children, refreshControl }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.ambient} pointerEvents="none" />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
+        refreshControl={refreshControl}
       >
         <View style={styles.header}>
           <Text style={styles.title}>{title}</Text>
