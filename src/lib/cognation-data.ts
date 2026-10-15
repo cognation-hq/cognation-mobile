@@ -7,6 +7,8 @@ import {
   type AccountKind,
   type CognationProfile,
   type PostVisibility,
+  type ProfileKind,
+  isDemoAccount,
   type TowerPost,
   type TowerPostAuthor,
   type TowerPostRow,
@@ -109,4 +111,67 @@ export async function fetchTowerFeed(
   }
   const rows = (data ?? []) as TowerPostRow[];
   return { ok: true, data: rows.map(mapPost) };
+}
+
+/** Under-13 test viewer (Sage) stays out of member lists, same as web LIST_FILTER. */
+const SAGE_FLEET_ID = 'seed-0248';
+
+function cleanProfile(row: CognationProfile & { created_at?: string }) {
+  return {
+    ...row,
+    account_kind: asAccountKind(row.account_kind),
+    handle: normalizeHandle(row.handle),
+    display_name: String(row.display_name || 'Member').slice(0, 80),
+    bio: String(row.bio || '').slice(0, 280),
+  };
+}
+
+/**
+ * People search — same profiles table/columns as web memberResults (never emails).
+ * Filters to the active side (personal/professional), drops Sage and the viewer,
+ * orders real people first, then Demo, newest first.
+ */
+export async function searchProfiles(
+  term: string,
+  kind: ProfileKind,
+  excludeUserId?: string,
+): Promise<DataResult<CognationProfile[]>> {
+  if (!isSupabaseConfigured) {
+    return { ok: false, error: 'Supabase is not configured.' };
+  }
+  const q = String(term || '').trim().toLowerCase().replace(/^@/, '').replace(/[%,()*]/g, '');
+  if (!q) return { ok: true, data: [] };
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_SELECT + ',created_at')
+    .eq('kind', kind)
+    .or(`display_name.ilike.%${q}%,handle.ilike.%${q}%`)
+    .or(`seed_fleet_id.is.null,seed_fleet_id.neq.${SAGE_FLEET_ID}`)
+    .order('created_at', { ascending: false })
+    .limit(40);
+  if (error) return { ok: false, error: error.message };
+  const rows = ((data ?? []) as unknown as (CognationProfile & { created_at?: string })[])
+    .filter((r) => r.seed_fleet_id !== SAGE_FLEET_ID && r.user_id !== excludeUserId)
+    .map(cleanProfile);
+  const real = rows.filter((r) => !isDemoAccount(r.account_kind));
+  const demo = rows.filter((r) => isDemoAccount(r.account_kind));
+  return { ok: true, data: [...real, ...demo].slice(0, 12) };
+}
+
+/** Posts by one profile (RLS decides visibility). */
+export async function fetchProfilePosts(
+  profileId: string,
+  limit = 40,
+): Promise<DataResult<TowerPost[]>> {
+  if (!isSupabaseConfigured) {
+    return { ok: false, error: 'Supabase is not configured.' };
+  }
+  const { data, error } = await supabase
+    .from('tower_posts')
+    .select(TOWER_FEED_SELECT)
+    .eq('author_profile_id', profileId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, data: ((data ?? []) as TowerPostRow[]).map(mapPost) };
 }
