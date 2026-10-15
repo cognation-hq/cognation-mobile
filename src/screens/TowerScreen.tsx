@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -38,6 +39,7 @@ export function TowerScreen() {
   const [posts, setPosts] = useState<TowerPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadFeed = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -58,6 +60,15 @@ export function TowerScreen() {
     setPosts(result.data);
   }, []);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadFeed();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadFeed]);
+
   useEffect(() => {
     void loadFeed();
   }, [loadFeed, user?.id]);
@@ -67,7 +78,22 @@ export function TowerScreen() {
     : 'Public Tower posts (soft browse) — sign in for friends feed too.';
 
   return (
-    <ScreenShell title="Tower" subtitle={subtitle}>
+    <ScreenShell
+      title="Tower"
+      subtitle={subtitle}
+      refreshControl={
+        configured ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              void onRefresh();
+            }}
+            tintColor={colors.glow}
+            colors={[colors.glow]}
+          />
+        ) : undefined
+      }
+    >
       {!configured ? (
         <GlassCard accent="violet">
           <Text style={styles.label}>Tower feed</Text>
