@@ -14,6 +14,7 @@ import {
   formatAuthError,
   withAuthTimeout,
 } from './authTimeout';
+import { PASSWORD_RESET_REDIRECT_URL } from './passwordReset';
 
 type AuthResult = {
   error: string | null;
@@ -29,6 +30,8 @@ type AuthContextValue = {
   signIn: (email: string, password: string) => Promise<AuthResult>;
   signUp: (email: string, password: string) => Promise<AuthResult>;
   signOut: () => Promise<AuthResult>;
+  /** Always resolves with error: null so the UI never reveals whether the email exists. */
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -137,6 +140,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    if (!isSupabaseConfigured) {
+      return {
+        error: 'Supabase is not configured. Add env vars and restart Expo.',
+      };
+    }
+    // Match the website: always treat the request as sent. Swallow network /
+    // API errors so the UI never reveals whether the address has an account.
+    try {
+      await withAuthTimeout(
+        supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: PASSWORD_RESET_REDIRECT_URL,
+        }),
+        AUTH_TIMEOUT_MS,
+      );
+    } catch {
+      // ignore — neutral confirmation is shown by the panel
+    }
+    return { error: null };
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -146,8 +170,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      requestPasswordReset,
     }),
-    [session, loading, signIn, signUp, signOut],
+    [session, loading, signIn, signUp, signOut, requestPasswordReset],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
