@@ -1,10 +1,21 @@
 import { Platform, TextStyle } from 'react-native';
 import { colors, holoGradient } from './colors';
 
+/**
+ * Website fonts (css/styles.css): headings/wordmark use Oswald; body UI uses the
+ * system sans stack (--cgn-ui), so body stays on the system font here too.
+ * Oswald loads non-blocking in _layout; until/unless it loads, iOS/Android fall
+ * back to the system font.
+ */
+export const fonts = {
+  displayBold: 'Oswald_700Bold',
+  displaySemi: 'Oswald_600SemiBold',
+};
+
 /** Uppercase display title (Oswald-like tracking) */
 export const displayTitle: TextStyle = {
+  fontFamily: fonts.displayBold,
   fontSize: 28,
-  fontWeight: '700',
   letterSpacing: 1.2,
   textTransform: 'uppercase',
   color: colors.text,
@@ -20,8 +31,8 @@ export const panelTitle: TextStyle = {
 
 /** Eyebrow / coming-soon label */
 export const eyebrow: TextStyle = {
-  fontSize: 12,
-  fontWeight: '700',
+  fontFamily: fonts.displaySemi,
+  fontSize: 13,
   letterSpacing: 1.4,
   textTransform: 'uppercase',
   color: colors.glow,
@@ -39,8 +50,8 @@ export const body: TextStyle = {
  */
 export function holoWordmarkStyle(size = 24): TextStyle {
   const base: TextStyle = {
+    fontFamily: fonts.displayBold,
     fontSize: size,
-    fontWeight: '700',
     letterSpacing: 2.4,
     textTransform: 'uppercase',
   };
