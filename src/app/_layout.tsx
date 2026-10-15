@@ -32,7 +32,7 @@ const navTheme = {
 };
 
 const COMMUNE_TITLES: Record<string, string> = {
-  index: 'Commune',
+  index: 'ECHO',
   classroom: 'Classroom',
   dating: 'Dating',
 };
@@ -107,7 +107,7 @@ export default function RootLayout() {
           >
             <Drawer.Screen
               name="index"
-              options={{ title: 'Tower', drawerLabel: 'Tower' }}
+              options={{ title: 'TOWER', drawerLabel: 'TOWER' }}
             />
             <Drawer.Screen
               name="commune"
@@ -115,8 +115,8 @@ export default function RootLayout() {
                 const name = getFocusedRouteNameFromRoute(route) ?? 'index';
                 const nested = name === 'classroom' || name === 'dating';
                 return {
-                  title: COMMUNE_TITLES[name] ?? 'Commune',
-                  drawerLabel: 'Commune',
+                  title: COMMUNE_TITLES[name] ?? 'ECHO',
+                  drawerLabel: 'ECHO',
                   headerLeft: (props) =>
                     nested ? (
                       <HeaderBackButton
@@ -134,11 +134,11 @@ export default function RootLayout() {
             />
             <Drawer.Screen
               name="news"
-              options={{ title: 'News', drawerLabel: 'News' }}
+              options={{ title: 'SIGNAL', drawerLabel: 'SIGNAL' }}
             />
             <Drawer.Screen
               name="circle"
-              options={{ title: 'Circle', drawerLabel: 'Circle' }}
+              options={{ title: 'PULSE', drawerLabel: 'PULSE' }}
             />
             <Drawer.Screen
               name="profile"

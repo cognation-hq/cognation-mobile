@@ -79,7 +79,7 @@ export function TowerScreen() {
 
   return (
     <ScreenShell
-      title="Tower"
+      title="TOWER"
       subtitle={subtitle}
       refreshControl={
         configured ? (
