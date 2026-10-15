@@ -65,10 +65,18 @@ export function AuthPanel() {
           onPress={() => {
             setBusy(true);
             setError(null);
-            void signOut().then((result) => {
-              setBusy(false);
-              if (result.error) setError(result.error);
-            });
+            void signOut()
+              .then((result) => {
+                if (result.error) setError(result.error);
+              })
+              .catch(() => {
+                setError(
+                  'Could not reach Cognation. Check your connection and try again.',
+                );
+              })
+              .finally(() => {
+                setBusy(false);
+              });
           }}
           disabled={busy}
         >
@@ -95,20 +103,28 @@ export function AuthPanel() {
     setError(null);
     setMessage(null);
     const action = mode === 'signIn' ? signIn : signUp;
-    void action(trimmed, password).then((result) => {
-      setBusy(false);
-      if (result.error) {
-        setError(result.error);
-        return;
-      }
-      if (result.needsEmailConfirmation) {
-        setMessage(
-          'Check your email to confirm your account, then sign in.',
+    void action(trimmed, password)
+      .then((result) => {
+        if (result.error) {
+          setError(result.error);
+          return;
+        }
+        if (result.needsEmailConfirmation) {
+          setMessage(
+            'Check your email to confirm your account, then sign in.',
+          );
+          setMode('signIn');
+          setPassword('');
+        }
+      })
+      .catch(() => {
+        setError(
+          'Could not reach Cognation. Check your connection and try again.',
         );
-        setMode('signIn');
-        setPassword('');
-      }
-    });
+      })
+      .finally(() => {
+        setBusy(false);
+      });
   };
 
   return (

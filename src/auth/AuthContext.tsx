@@ -9,6 +9,11 @@ import {
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import {
+  AUTH_TIMEOUT_MS,
+  formatAuthError,
+  withAuthTimeout,
+} from './authTimeout';
 
 type AuthResult = {
   error: string | null;
@@ -28,6 +33,13 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function toAuthError(err: unknown): string {
+  if (err instanceof Error) {
+    return formatAuthError(err.message) ?? err.message;
+  }
+  return formatAuthError(String(err)) ?? 'Something went wrong. Try again.';
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,12 +52,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let mounted = true;
 
-    void supabase.auth.getSession().then(({ data }) => {
-      if (mounted) {
-        setSession(data.session);
-        setLoading(false);
-      }
-    });
+    void withAuthTimeout(supabase.auth.getSession(), AUTH_TIMEOUT_MS)
+      .then(({ data }) => {
+        if (mounted) {
+          setSession(data.session);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        // Session check timed out or failed — show sign-in rather than spin forever.
+        if (mounted) {
+          setSession(null);
+          setLoading(false);
+        }
+      });
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
       (_event, next) => {
@@ -68,11 +88,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: 'Supabase is not configured. Add env vars and restart Expo.',
       };
     }
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        AUTH_TIMEOUT_MS,
+      );
+      return { error: formatAuthError(error?.message ?? null) };
+    } catch (err) {
+      return { error: toAuthError(err) };
+    }
   }, []);
 
   const signUp = useCallback(async (email: string, password: string) => {
@@ -81,22 +105,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error: 'Supabase is not configured. Add env vars and restart Expo.',
       };
     }
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      return { error: error.message };
+    try {
+      const { data, error } = await withAuthTimeout(
+        supabase.auth.signUp({ email, password }),
+        AUTH_TIMEOUT_MS,
+      );
+      if (error) {
+        return { error: formatAuthError(error.message) };
+      }
+      if (data.user && !data.session) {
+        return { error: null, needsEmailConfirmation: true };
+      }
+      return { error: null };
+    } catch (err) {
+      return { error: toAuthError(err) };
     }
-    if (data.user && !data.session) {
-      return { error: null, needsEmailConfirmation: true };
-    }
-    return { error: null };
   }, []);
 
   const signOut = useCallback(async () => {
     if (!isSupabaseConfigured) {
       return { error: null };
     }
-    const { error } = await supabase.auth.signOut();
-    return { error: error?.message ?? null };
+    try {
+      const { error } = await withAuthTimeout(
+        supabase.auth.signOut(),
+        AUTH_TIMEOUT_MS,
+      );
+      return { error: formatAuthError(error?.message ?? null) };
+    } catch (err) {
+      return { error: toAuthError(err) };
+    }
   }, []);
 
   const value = useMemo<AuthContextValue>(
