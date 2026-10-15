@@ -1,4 +1,5 @@
 import 'react-native-gesture-handler';
+import type React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, ThemeProvider } from 'expo-router';
 import {
@@ -13,8 +14,9 @@ import {
   getFocusedRouteNameFromRoute,
 } from 'expo-router/react-navigation';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet, Text, View } from 'react-native';
-import { AuthProvider } from '../auth/AuthContext';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AuthProvider, useAuth } from '../auth/AuthContext';
+import { ProfileScreen } from '../screens/ProfileScreen';
 import { HoloTitle } from '../components/HoloTitle';
 import { colors } from '../theme/colors';
 
@@ -50,8 +52,33 @@ function CognationDrawerContent(props: DrawerContentComponentProps) {
         <Text style={styles.brandTag}>calm · connected · intentional</Text>
       </View>
       <DrawerItemList {...props} />
+      <SignOutItem />
     </DrawerContentScrollView>
   );
+}
+
+function SignOutItem() {
+  const { user, signOut } = useAuth();
+  if (!user) return null;
+  return (
+    <Pressable
+      style={styles.signOut}
+      accessibilityRole="button"
+      onPress={() => {
+        void signOut();
+      }}
+    >
+      <Text style={styles.signOutText}>Sign out</Text>
+    </Pressable>
+  );
+}
+
+/** Signed out → sign-in screen. Signed in → app, Profile hidden from the menu. */
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { user, loading, configured } = useAuth();
+  if (configured && loading) return <View style={styles.root} />;
+  if (configured && !user) return <ProfileScreen />;
+  return <>{children}</>;
 }
 
 export default function RootLayout() {
@@ -60,6 +87,7 @@ export default function RootLayout() {
       <AuthProvider>
         <ThemeProvider value={navTheme}>
           <StatusBar style="light" />
+          <AuthGate>
           <Drawer
             initialRouteName="index"
             drawerContent={(props) => <CognationDrawerContent {...props} />}
@@ -142,9 +170,14 @@ export default function RootLayout() {
             />
             <Drawer.Screen
               name="profile"
-              options={{ title: 'Profile', drawerLabel: 'Profile' }}
+              options={{
+                title: 'Profile',
+                drawerLabel: 'Profile',
+                drawerItemStyle: { display: 'none' },
+              }}
             />
           </Drawer>
+          </AuthGate>
         </ThemeProvider>
       </AuthProvider>
     </GestureHandlerRootView>
@@ -152,6 +185,13 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
+  signOut: {
+    minHeight: 44,
+    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginTop: 16,
+  },
+  signOutText: { color: colors.textMuted, fontSize: 15, fontWeight: '600' },
   root: {
     flex: 1,
     backgroundColor: colors.background,
