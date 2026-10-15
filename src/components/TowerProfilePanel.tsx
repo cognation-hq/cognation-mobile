@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
 import {
   fetchMyProfiles,
+  fetchProfileByHandle,
   fetchProfilePosts,
   searchProfiles,
 } from '../lib/cognation-data';
@@ -37,6 +39,18 @@ export function TowerProfilePanel({ userId, refreshKey, onShowingProfile }: Prop
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<CognationProfile[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const { handle } = useLocalSearchParams<{ handle?: string }>();
+
+  // PULSE ring taps open a person's Tower via ?handle=.
+  useEffect(() => {
+    if (!handle) return;
+    void fetchProfileByHandle(String(handle)).then((r) => {
+      if (r.ok && r.data) {
+        setSide(r.data.kind);
+        setViewed(r.data);
+      }
+    });
+  }, [handle]);
 
   useEffect(() => {
     if (!userId) {

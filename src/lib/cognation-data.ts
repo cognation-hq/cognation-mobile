@@ -175,3 +175,50 @@ export async function fetchProfilePosts(
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: ((data ?? []) as TowerPostRow[]).map(mapPost) };
 }
+
+export async function fetchProfileByHandle(
+  handle: string,
+): Promise<DataResult<CognationProfile | null>> {
+  if (!isSupabaseConfigured) return { ok: false, error: 'Supabase is not configured.' };
+  const h = normalizeHandle(handle);
+  if (!h) return { ok: true, data: null };
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_SELECT)
+    .eq('handle', h)
+    .limit(1);
+  if (error) return { ok: false, error: error.message };
+  const row = (data ?? [])[0] as CognationProfile | undefined;
+  return { ok: true, data: row && row.seed_fleet_id !== SAGE_FLEET_ID ? cleanProfile(row) : null };
+}
+
+export type PulseGraph = { people: CognationProfile[]; edges: [string, string][] };
+
+/** PULSE ring: same friendships + profiles tables as the web Circle ring. */
+export async function fetchPulseGraph(userId: string): Promise<DataResult<PulseGraph>> {
+  if (!isSupabaseConfigured) return { ok: false, error: 'Supabase is not configured.' };
+  const mine = await supabase.from('friendships').select('friend_user_id').eq('user_id', userId);
+  if (mine.error) return { ok: false, error: mine.error.message };
+  const ids = (mine.data ?? []).map((r) => String(r.friend_user_id)).slice(0, 24);
+  if (!ids.length) return { ok: true, data: { people: [], edges: [] } };
+  const [profs, links] = await Promise.all([
+    supabase.from('profiles').select(PROFILE_SELECT).in('user_id', ids).eq('kind', 'personal'),
+    supabase.from('friendships').select('user_id,friend_user_id').in('user_id', ids).in('friend_user_id', ids),
+  ]);
+  if (profs.error) return { ok: false, error: profs.error.message };
+  const people = ((profs.data ?? []) as CognationProfile[])
+    .filter((p) => p.seed_fleet_id !== SAGE_FLEET_ID)
+    .map(cleanProfile);
+  const seen = new Set<string>();
+  const edges: [string, string][] = [];
+  for (const l of links.data ?? []) {
+    const a = String(l.user_id);
+    const b = String(l.friend_user_id);
+    const k = a < b ? `${a}|${b}` : `${b}|${a}`;
+    if (!seen.has(k)) {
+      seen.add(k);
+      edges.push([a, b]);
+    }
+  }
+  return { ok: true, data: { people, edges } };
+}
