@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -12,11 +11,23 @@ import { GlassCard } from '../components/GlassCard';
 import { colors } from '../theme/colors';
 import { body, eyebrow, panelTitle } from '../theme/typography';
 import { useAuth } from './AuthContext';
+import {
+  isValidResetEmail,
+  PASSWORD_RESET_SENT_MESSAGE,
+} from './passwordReset';
 
-type Mode = 'signIn' | 'signUp';
+type Mode = 'signIn' | 'signUp' | 'forgot';
 
 export function AuthPanel() {
-  const { user, loading, configured, signIn, signUp, signOut } = useAuth();
+  const {
+    user,
+    loading,
+    configured,
+    signIn,
+    signUp,
+    signOut,
+    requestPasswordReset,
+  } = useAuth();
   const [mode, setMode] = useState<Mode>('signIn');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -102,7 +113,7 @@ export function AuthPanel() {
     setBusy(true);
     setError(null);
     setMessage(null);
-    const action = mode === 'signIn' ? signIn : signUp;
+    const action = mode === 'signUp' ? signUp : signIn;
     void action(trimmed, password)
       .then((result) => {
         if (result.error) {
@@ -126,6 +137,92 @@ export function AuthPanel() {
         setBusy(false);
       });
   };
+
+  const onForgotSend = () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!isValidResetEmail(trimmed)) {
+      setError('Enter a valid email.');
+      setMessage(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setMessage(null);
+    void requestPasswordReset(trimmed)
+      .then(() => {
+        // Always the same neutral line — do not reveal whether an account exists.
+        setMessage(PASSWORD_RESET_SENT_MESSAGE);
+      })
+      .catch(() => {
+        setMessage(PASSWORD_RESET_SENT_MESSAGE);
+      })
+      .finally(() => {
+        setBusy(false);
+      });
+  };
+
+  if (mode === 'forgot') {
+    return (
+      <GlassCard>
+        <Text style={styles.label}>Account</Text>
+        <Text style={styles.heading}>Forgot password?</Text>
+        <Text style={styles.body}>
+          Enter your email. If it has a Cognation account, we will send a reset
+          link. The new password works on the website and the app.
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          textContentType="username"
+          autoComplete="email"
+          spellCheck={false}
+          placeholder="Email"
+          placeholderTextColor={colors.textDim}
+          value={email}
+          onChangeText={setEmail}
+          editable={!busy}
+        />
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            styles.buttonPrimary,
+            pressed && styles.pressed,
+          ]}
+          onPress={onForgotSend}
+          disabled={busy}
+          accessibilityRole="button"
+          accessibilityLabel="Send reset link"
+        >
+          {busy ? (
+            <ActivityIndicator color={colors.ink} />
+          ) : (
+            <Text style={styles.buttonPrimaryText}>Send reset link</Text>
+          )}
+        </Pressable>
+
+        <Pressable
+          style={[styles.switchRow, styles.tapTarget]}
+          hitSlop={8}
+          accessibilityRole="link"
+          onPress={() => {
+            setMode('signIn');
+            setError(null);
+            setMessage(null);
+          }}
+          disabled={busy}
+        >
+          <Text style={styles.switchText}>Back to sign in</Text>
+        </Pressable>
+
+        {message ? <Text style={styles.message}>{message}</Text> : null}
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </GlassCard>
+    );
+  }
 
   return (
     <GlassCard>
@@ -191,9 +288,14 @@ export function AuthPanel() {
           style={[styles.switchRow, styles.tapTarget]}
           hitSlop={8}
           accessibilityRole="link"
+          accessibilityLabel="Forgot password?"
           onPress={() => {
-            void Linking.openURL('https://cognation-3md.pages.dev/reset-password');
+            setMode('forgot');
+            setError(null);
+            setMessage(null);
+            setPassword('');
           }}
+          disabled={busy}
         >
           <Text style={styles.switchText}>Forgot password?</Text>
         </Pressable>

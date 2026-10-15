@@ -35,7 +35,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "test:auth": "node src/auth/authTimeout.test.js"
+    "test:auth": "node src/auth/authTimeout.test.js && node src/auth/passwordReset.test.js"
   },
   "private": true
 }
