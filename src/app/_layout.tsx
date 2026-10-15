@@ -1,6 +1,8 @@
 import 'react-native-gesture-handler';
 import type React from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { Oswald_600SemiBold, Oswald_700Bold, useFonts } from '@expo-google-fonts/oswald';
+import { fonts } from '../theme/typography';
 import { DarkTheme, ThemeProvider } from 'expo-router';
 import {
   Drawer,
@@ -82,6 +84,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
+  // Non-blocking: never wait on fonts; system font is used if loading fails.
+  useFonts({ Oswald_600SemiBold, Oswald_700Bold });
   return (
     <GestureHandlerRootView style={styles.root}>
       <AuthProvider>
@@ -102,7 +106,7 @@ export default function RootLayout() {
               },
               headerTintColor: colors.glow,
               headerTitleStyle: {
-                fontWeight: '700',
+                fontFamily: fonts.displaySemi,
                 letterSpacing: 0.8,
                 textTransform: 'uppercase',
                 color: colors.text,
