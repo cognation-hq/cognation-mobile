@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../auth/AuthContext';
 import { DemoBadge } from '../components/DemoBadge';
 import { GlassCard } from '../components/GlassCard';
+import { TowerProfilePanel } from '../components/TowerProfilePanel';
 import { ScreenShell } from '../components/ScreenShell';
 import { fetchTowerFeed } from '../lib/cognation-data';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -40,6 +41,8 @@ export function TowerScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [showingProfile, setShowingProfile] = useState(false);
 
   const loadFeed = useCallback(async () => {
     if (!isSupabaseConfigured) {
@@ -62,6 +65,7 @@ export function TowerScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setRefreshKey((k) => k + 1);
     try {
       await loadFeed();
     } finally {
@@ -108,6 +112,14 @@ export function TowerScreen() {
       ) : null}
 
       {configured ? (
+        <TowerProfilePanel
+          userId={user?.id ?? null}
+          refreshKey={refreshKey}
+          onShowingProfile={setShowingProfile}
+        />
+      ) : null}
+
+      {configured && !showingProfile ? (
         <View style={styles.metaRow}>
           <View style={styles.metaChip}>
             <Text style={styles.metaText}>
@@ -134,7 +146,7 @@ export function TowerScreen() {
         </View>
       ) : null}
 
-      {configured && loading ? (
+      {configured && !showingProfile && loading ? (
         <GlassCard>
           <View style={styles.centered}>
             <ActivityIndicator color={colors.glow} />
@@ -143,7 +155,7 @@ export function TowerScreen() {
         </GlassCard>
       ) : null}
 
-      {configured && error ? (
+      {configured && !showingProfile && error ? (
         <GlassCard accent="magenta">
           <Text style={styles.label}>Could not load</Text>
           <Text style={styles.error}>{error}</Text>
@@ -158,7 +170,7 @@ export function TowerScreen() {
         </GlassCard>
       ) : null}
 
-      {configured && !loading && !error && posts.length === 0 ? (
+      {configured && !showingProfile && !loading && !error && posts.length === 0 ? (
         <GlassCard>
           <Text style={styles.label}>Tower</Text>
           <Text style={styles.heading}>No posts yet</Text>
@@ -170,7 +182,7 @@ export function TowerScreen() {
         </GlassCard>
       ) : null}
 
-      {configured &&
+      {configured && !showingProfile &&
         !loading &&
         posts.map((post) => (
           <GlassCard key={post.id}>
