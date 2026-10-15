@@ -5,8 +5,8 @@ const LOGO = require('../../assets/splash-icon.png');
 
 /**
  * X-style launch: the splash logo on the splash background (#000) scales up
- * fast and fades, revealing the app. Whole effect ≈ 550ms; never blocks the
- * app (it renders on top and removes itself). Reduce Motion → quick fade only.
+ * over 1.2s (ease-in-out) after a 0.4s hold, then fades 0.4s into Tower (~2s).
+ * Never blocks: the app mounts underneath. Reduce Motion → 0.5s fade only.
  */
 export function LaunchZoom() {
   const [done, setDone] = useState(false);
@@ -20,24 +20,21 @@ export function LaunchZoom() {
       .then((reduce) => {
         if (cancelled) return;
         const anim = reduce
-          ? Animated.timing(fade, { toValue: 0, duration: 150, useNativeDriver: true })
+          ? Animated.timing(fade, { toValue: 0, duration: 500, useNativeDriver: true })
           : Animated.sequence([
-              Animated.delay(150),
-              Animated.parallel([
-                Animated.timing(scale, {
-                  toValue: 14,
-                  duration: 400,
-                  easing: Easing.in(Easing.cubic),
-                  useNativeDriver: true,
-                }),
-                Animated.timing(fade, {
-                  toValue: 0,
-                  duration: 400,
-                  delay: 120,
-                  easing: Easing.in(Easing.quad),
-                  useNativeDriver: true,
-                }),
-              ]),
+              Animated.delay(400),
+              Animated.timing(scale, {
+                toValue: 14,
+                duration: 1200,
+                easing: Easing.inOut(Easing.cubic),
+                useNativeDriver: true,
+              }),
+              Animated.timing(fade, {
+                toValue: 0,
+                duration: 400,
+                easing: Easing.out(Easing.quad),
+                useNativeDriver: true,
+              }),
             ]);
         anim.start(() => setDone(true));
       });
