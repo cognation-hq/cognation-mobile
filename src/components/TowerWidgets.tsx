@@ -5,11 +5,20 @@ import type { CognationProfile } from '../lib/types';
 import { colors } from '../theme/colors';
 import { body, eyebrow } from '../theme/typography';
 
-/** Same spawn order as web js/tower.js SPAWN_ROWS (avatar/identity/slogan live in the profile card). */
-const DEFAULT_ORDER: Record<'personal' | 'professional', string[]> = {
-  personal: ['music', 'social', 'badges', 'friends', 'calendar', 'polaroid', 'html', 'instax'],
-  professional: ['youtube', 'social', 'badges', 'calendar', 'html'],
+/** Same rows as web js/tower.js SPAWN_ROWS; a row of two is left | right.
+ *  (avatar/identity/slogan live in the profile card.) */
+const SPAWN_ROWS: Record<'personal' | 'professional', string[][]> = {
+  personal: [['music'], ['friends', 'social'], ['badges', 'calendar'], ['polaroid', 'html'], ['instax']],
+  professional: [['youtube'], ['social', 'badges'], ['followers', 'calendar'], ['html']],
 };
+/** Web FACTORY_SEED_LAYOUTS: x/y never chosen by the owner, so treated as unplaced. */
+const FACTORY: Record<string, [number, number]>[] = [
+  { social: [2, 22], music: [2, 28], youtube: [2, 28], badges: [2, 38], friends: [2, 52], followers: [2, 52], html: [22, 3], calendar: [55, 28], polaroid: [40, 6], instax: [62, 4] },
+  { social: [4, 26], music: [4, 34], badges: [4, 44], friends: [4, 56], html: [28, 4] },
+];
+function isFactory(id: string, p: WidgetPos): boolean {
+  return FACTORY.some((f) => f[id] && f[id][0] === p.x && f[id][1] === p.y);
+}
 const PROFILE_CARD = new Set(['avatar', 'identity', 'slogan', 'feed', 'messages', 'going-live']);
 const LABELS: Record<string, string> = {
   music: 'Music',
@@ -17,6 +26,7 @@ const LABELS: Record<string, string> = {
   social: 'Links',
   badges: 'Badges',
   friends: 'Top friends',
+  followers: 'Followers',
   calendar: 'Calendar',
   polaroid: 'Polaroid',
   html: 'Custom HTML',
@@ -43,16 +53,21 @@ export function TowerWidgets({ profile }: { profile: CognationProfile }) {
   }, [profile.id]);
 
   const placed = layout
-    ? Object.entries(layout).filter(([id]) => !PROFILE_CARD.has(id))
+    ? Object.entries(layout).filter(([id, p]) => !PROFILE_CARD.has(id) && !isFactory(id, p))
     : [];
 
+  // Like the web: no owner-placed widget → the default grid, never absolute boxes.
   if (!placed.length) {
     return (
-      <View style={styles.column}>
-        {DEFAULT_ORDER[profile.kind].map((id) => (
-          <View key={id} style={styles.card}>
-            <Text style={styles.title}>{label(id)}</Text>
-            <Text style={styles.hint}>On the website</Text>
+      <View style={styles.column} accessibilityLabel="Tower widgets, read only">
+        {SPAWN_ROWS[profile.kind].map((row) => (
+          <View key={row.join('|')} style={styles.row}>
+            {row.map((id) => (
+              <View key={id} style={[styles.card, styles.cell]}>
+                <Text style={styles.title}>{label(id)}</Text>
+                <Text style={styles.hint}>On the website</Text>
+              </View>
+            ))}
           </View>
         ))}
       </View>
@@ -95,6 +110,8 @@ export function TowerWidgets({ profile }: { profile: CognationProfile }) {
 
 const styles = StyleSheet.create({
   column: { gap: 14 },
+  row: { flexDirection: 'row', gap: 14 },
+  cell: { flex: 1 },
   stage: { position: 'relative' },
   abs: { position: 'absolute', minHeight: 72 },
   card: {
