@@ -223,3 +223,28 @@ export async function fetchPulseGraph(userId: string): Promise<DataResult<PulseG
   }
   return { ok: true, data: { people, edges } };
 }
+
+export type WidgetPos = { x: number; y: number; z: number; tilt: number };
+
+/** Saved web layout (public.tower_widget_layouts, web PR cognation#97). null = no row. */
+export async function fetchWidgetLayout(
+  profileId: string,
+): Promise<DataResult<Record<string, WidgetPos> | null>> {
+  if (!isSupabaseConfigured) return { ok: false, error: 'Supabase is not configured.' };
+  const { data, error } = await supabase
+    .from('tower_widget_layouts')
+    .select('layout')
+    .eq('profile_id', profileId)
+    .limit(1);
+  // Table not created yet → treat as no row (default layout).
+  if (error) return { ok: true, data: null };
+  const raw = (data ?? [])[0]?.layout as Record<string, Partial<WidgetPos>> | undefined;
+  if (!raw || typeof raw !== 'object') return { ok: true, data: null };
+  const out: Record<string, WidgetPos> = {};
+  for (const [id, p] of Object.entries(raw)) {
+    if (!p || typeof p !== 'object') continue;
+    const n = (v: unknown, d: number) => (typeof v === 'number' && isFinite(v) ? v : d);
+    out[id] = { x: n(p.x, 0), y: n(p.y, 0), z: n(p.z, 1), tilt: n(p.tilt, 0) };
+  }
+  return { ok: true, data: Object.keys(out).length ? out : null };
+}
