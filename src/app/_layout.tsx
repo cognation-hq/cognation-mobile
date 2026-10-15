@@ -52,7 +52,7 @@ function CognationDrawerContent(props: DrawerContentComponentProps) {
       <View style={styles.brand}>
         <View style={styles.brandGlow} pointerEvents="none" />
         <HoloTitle size={22}>Cognation</HoloTitle>
-        <Text style={styles.brandTag}>calm · connected · intentional</Text>
+        <Text style={styles.brandTag}>Wellness and life skills</Text>
       </View>
       <DrawerItemList {...props} />
       <SignOutItem />

@@ -209,7 +209,7 @@ export async function fetchPulseGraph(userId: string): Promise<DataResult<PulseG
   const people = ((profs.data ?? []) as CognationProfile[])
     .map(cleanProfile)
     // Leave out every seed/ops account (Demo), not just Sage.
-    .filter((p) => p.seed_fleet_id !== SAGE_FLEET_ID && !p.seed_fleet_id && !isDemoAccount(p.account_kind));
+    .filter((p) => !p.seed_fleet_id && !isDemoAccount(p.account_kind));
   const seen = new Set<string>();
   const edges: [string, string][] = [];
   for (const l of links.data ?? []) {

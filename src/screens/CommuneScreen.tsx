@@ -19,13 +19,13 @@ const DESTINATIONS: Dest[] = [
   {
     href: '/commune/classroom',
     label: 'Classroom',
-    blurb: 'Learn at a human pace — lessons & sessions.',
+    blurb: 'Lessons and live sessions.',
     accent: 'cyan',
   },
   {
     href: '/commune/dating',
     label: 'Dating',
-    blurb: 'Intentional connection — not swipes as sport.',
+    blurb: 'Meet people who share your goals.',
     accent: 'magenta',
   },
 ];
@@ -40,13 +40,12 @@ export function CommuneScreen() {
     >
       <ComingSoonBlock
         label="1:1 featured mix"
-        heading="Placeholder"
+        heading="Coming soon"
         accent="magenta"
-        footer="Shell only — no live queue, ads, or matching yet."
+        footer="Not live yet."
       >
         <Text style={styles.body}>
-          ECHO surfaces a calm, intentional mix of moments across Cognation —
-          one at a time. Slots in this mix:
+          ECHO shows one featured card at a time, in equal turns across:
         </Text>
         <View style={styles.chips}>
           {MIX_SLOTS.map((slot) => (

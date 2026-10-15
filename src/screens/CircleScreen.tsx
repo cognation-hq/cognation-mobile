@@ -78,7 +78,7 @@ export function CircleScreen() {
   }, [n, reduce, drops]);
 
   return (
-    <ScreenShell title="PULSE" subtitle="Close community — small by design.">
+    <ScreenShell title="PULSE" subtitle="Your friends and how they connect.">
       {error ? (
         <GlassCard accent="magenta">
           <Text style={styles.body}>{error}</Text>

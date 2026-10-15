@@ -6,15 +6,14 @@ export function DatingScreen() {
   return (
     <ScreenShell
       title="Dating"
-      subtitle="Intentional connection — not swipes as sport."
+      subtitle="Meet people who share your goals."
     >
       <ComingSoonBlock heading="Discovery" accent="magenta">
-        Dating discovery will appear here later. No profiles or seed users in
-        this shell.
+        Dating is coming soon.
       </ComingSoonBlock>
       <MockPanel
         title="Match panel"
-        hint="Placeholder chrome — no cards to swipe"
+        hint="Matches will show here."
         accent="magenta"
       />
     </ScreenShell>

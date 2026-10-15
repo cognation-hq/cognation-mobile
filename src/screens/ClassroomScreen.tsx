@@ -4,13 +4,13 @@ import { ScreenShell } from '../components/ScreenShell';
 
 export function ClassroomScreen() {
   return (
-    <ScreenShell title="Classroom" subtitle="Learn at a human pace.">
+    <ScreenShell title="Classroom" subtitle="Lessons and live sessions.">
       <ComingSoonBlock heading="Lessons & sessions">
-        Classroom lessons and sessions will live here. Shell only for now.
+        Classrooms are coming soon.
       </ComingSoonBlock>
       <MockPanel
         title="Lesson card"
-        hint="Empty seat — curriculum arrives later"
+        hint="Lessons will show here."
         accent="cyan"
       />
     </ScreenShell>

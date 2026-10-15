@@ -51,8 +51,8 @@ export function ProfileScreen() {
     profiles.find((p) => p.kind === 'professional') ?? null;
 
   const subtitle = user
-    ? 'Signed in — live profile from Cognation Supabase.'
-    : 'Sign in to Cognation, or browse the calm shell unsigned.';
+    ? 'You are signed in.'
+    : 'Sign in to Cognation.';
 
   return (
     <ScreenShell title="Profile" subtitle={subtitle}>
@@ -125,7 +125,7 @@ export function ProfileScreen() {
 
       <MockPanel
         title="Settings strip"
-        hint="Empty glass — privacy controls later"
+        hint="Privacy settings are coming soon."
         accent="cyan"
       />
     </ScreenShell>
