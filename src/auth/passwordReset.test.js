@@ -9,7 +9,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-const PASSWORD_RESET_REDIRECT_URL = 'https://cognation.app/reset-password';
+const PASSWORD_RESET_REDIRECT_URL = 'https://cognation-3md.pages.dev/reset-password';
 const PASSWORD_RESET_SENT_MESSAGE =
   'If that email has an account, a reset link is on its way.';
 
@@ -67,7 +67,7 @@ function testStillInSource() {
     'utf8',
   );
   assert.ok(
-    helper.indexOf('https://cognation.app/reset-password') !== -1,
+    helper.indexOf('https://cognation-3md.pages.dev/reset-password') !== -1,
     'redirect must match the website reset page',
   );
 
