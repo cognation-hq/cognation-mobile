@@ -12,6 +12,7 @@ import { colors } from '../theme/colors';
 import { body, eyebrow, panelTitle } from '../theme/typography';
 import { DemoBadge } from './DemoBadge';
 import { GlassCard } from './GlassCard';
+import { TowerWidgets } from './TowerWidgets';
 
 type Props = {
   userId: string | null;
@@ -165,6 +166,8 @@ export function TowerProfilePanel({ userId, refreshKey, onShowingProfile }: Prop
           <Text style={styles.body}>No {side} page yet. Create one on the website.</Text>
         </GlassCard>
       ) : null}
+
+      {shown ? <TowerWidgets profile={shown} /> : null}
 
       {shown
         ? posts.map((post) => (
