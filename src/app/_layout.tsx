@@ -20,6 +20,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from '../auth/AuthContext';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { HoloTitle } from '../components/HoloTitle';
+import { LaunchZoom } from '../components/LaunchZoom';
 import { colors } from '../theme/colors';
 
 const navTheme = {
@@ -183,6 +184,7 @@ export default function RootLayout() {
           </Drawer>
           </AuthGate>
         </ThemeProvider>
+        <LaunchZoom />
       </AuthProvider>
     </GestureHandlerRootView>
   );
