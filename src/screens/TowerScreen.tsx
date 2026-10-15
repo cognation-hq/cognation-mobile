@@ -78,8 +78,8 @@ export function TowerScreen() {
   }, [loadFeed, user?.id]);
 
   const subtitle = user
-    ? 'Live Tower feed from Cognation Supabase.'
-    : 'Public Tower posts (soft browse) — sign in for friends feed too.';
+    ? 'Posts from you and your friends.'
+    : 'Public posts. Sign in to see friends too.';
 
   return (
     <ScreenShell

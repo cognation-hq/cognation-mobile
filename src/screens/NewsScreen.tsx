@@ -58,7 +58,7 @@ export function NewsScreen() {
   return (
     <ScreenShell
       title="SIGNAL"
-      subtitle="Thoughtful updates — not a dopamine feed."
+      subtitle="News and posts from Cognation."
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.glow} />
       }

@@ -43,7 +43,9 @@ export function TowerWidgets({ profile }: { profile: CognationProfile }) {
   }, [profile.id]);
 
   const placed = layout
-    ? Object.entries(layout).filter(([id]) => !PROFILE_CARD.has(id))
+    ? Object.entries(layout).filter(
+        ([id]) => !PROFILE_CARD.has(id) && !(profile.kind === 'professional' && /^music/.test(id)),
+      )
     : [];
 
   if (!placed.length) {

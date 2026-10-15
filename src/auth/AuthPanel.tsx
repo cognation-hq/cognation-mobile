@@ -116,7 +116,7 @@ export function AuthPanel() {
         {mode === 'signIn' ? 'Sign in' : 'Create account'}
       </Text>
       <Text style={styles.body}>
-        Cognation wellness account — calm credentials, not a social feed.
+        Sign in with your Cognation account.
       </Text>
 
       <TextInput
