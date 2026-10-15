@@ -37,8 +37,17 @@
       "typedRoutes": true
     },
     "extra": {
-      "eas": {},
+      "eas": {
+        "projectId": "2d05770e-4f0d-4380-b699-de88400f9b17"
+      },
       "router": {}
+    },
+    "owner": "cognation",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2d05770e-4f0d-4380-b699-de88400f9b17"
     }
   }
 }
