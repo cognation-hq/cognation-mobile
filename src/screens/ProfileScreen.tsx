@@ -123,11 +123,14 @@ export function ProfileScreen() {
         </GlassCard>
       ) : null}
 
-      <MockPanel
-        title="Settings strip"
-        hint="Empty glass — privacy controls later"
-        accent="cyan"
-      />
+      {/* Placeholder only once signed in; the sign-in screen stays clean. */}
+      {user ? (
+        <MockPanel
+          title="Settings strip"
+          hint="Empty glass — privacy controls later"
+          accent="cyan"
+        />
+      ) : null}
     </ScreenShell>
   );
 }
