@@ -83,7 +83,8 @@ export function AuthPanel() {
   }
 
   const onSubmit = () => {
-    const trimmed = email.trim();
+    // Same as the website: trim + lowercase the email; never touch the password.
+    const trimmed = email.trim().toLowerCase();
     if (!trimmed || password.length < 6) {
       setError('Enter email and a password (at least 6 characters).');
       setMessage(null);
@@ -124,6 +125,9 @@ export function AuthPanel() {
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
+        textContentType="username"
+        autoComplete="email"
+        spellCheck={false}
         placeholder="Email"
         placeholderTextColor={colors.textDim}
         value={email}
@@ -133,6 +137,13 @@ export function AuthPanel() {
       <TextInput
         style={styles.input}
         secureTextEntry
+        // iOS: without these, the field can be autofilled with a different saved
+        // password or a generated "Strong Password", which signs in as invalid.
+        textContentType={mode === 'signIn' ? 'password' : 'newPassword'}
+        autoComplete={mode === 'signIn' ? 'current-password' : 'new-password'}
+        autoCapitalize="none"
+        autoCorrect={false}
+        spellCheck={false}
         placeholder="Password"
         placeholderTextColor={colors.textDim}
         value={password}
