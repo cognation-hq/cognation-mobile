@@ -9,12 +9,15 @@ type Props = {
   subtitle?: string;
   children?: ReactNode;
   refreshControl?: ReactElement<RefreshControlProps>;
+  /** PULSE: web .circle-fall page background (indigo + cyan/violet halo). */
+  halo?: boolean;
 };
 
-export function ScreenShell({ title, subtitle, children, refreshControl }: Props) {
+export function ScreenShell({ title, subtitle, children, refreshControl, halo }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.ambient} pointerEvents="none" />
+      {halo ? <View style={styles.halo} pointerEvents="none" /> : null}
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -45,6 +48,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 80,
     shadowOffset: { width: -40, height: -60 },
+  },
+  // Same layers as web css/styles.css .circle-fall (Alexa lock 2026-10-07).
+  halo: {
+    ...StyleSheet.absoluteFill,
+    experimental_backgroundImage:
+      'radial-gradient(ellipse at 50% 44%, rgba(168, 244, 255, 0.16), transparent 42%), ' +
+      'radial-gradient(ellipse at 52% 52%, rgba(197, 166, 255, 0.2), transparent 58%), ' +
+      'linear-gradient(145deg, #171a3a 0%, #291b3a 100%)',
   },
   scroll: {
     paddingHorizontal: 22,
