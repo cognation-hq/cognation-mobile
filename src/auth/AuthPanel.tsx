@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   StyleSheet,
   Text,
@@ -169,6 +170,19 @@ export function AuthPanel() {
         )}
       </Pressable>
 
+      {mode === 'signIn' ? (
+        <Pressable
+          style={[styles.switchRow, styles.tapTarget]}
+          hitSlop={8}
+          accessibilityRole="link"
+          onPress={() => {
+            void Linking.openURL('https://cognation-3md.pages.dev/reset-password');
+          }}
+        >
+          <Text style={styles.switchText}>Forgot password?</Text>
+        </Pressable>
+      ) : null}
+
       <Pressable
         style={styles.switchRow}
         onPress={() => {
@@ -259,6 +273,7 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
+  tapTarget: { minHeight: 44, justifyContent: 'center' },
   switchRow: {
     marginTop: 16,
     alignItems: 'center',
