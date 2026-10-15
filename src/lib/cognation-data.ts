@@ -192,9 +192,12 @@ export async function fetchProfileByHandle(
   return { ok: true, data: row && row.seed_fleet_id !== SAGE_FLEET_ID ? cleanProfile(row) : null };
 }
 
+/** edges are [user_id, user_id] pairs between two people on the ring. */
 export type PulseGraph = { people: CognationProfile[]; edges: [string, string][] };
 
-/** PULSE ring: same friendships + profiles tables as the web Circle ring. */
+/** PULSE ring: friends from friendships; friend-to-friend lines from the
+ *  my_friend_links() server function (RLS hides friendships between two other
+ *  users, so a direct select can never see them). No seeds, no emails. */
 export async function fetchPulseGraph(userId: string): Promise<DataResult<PulseGraph>> {
   if (!isSupabaseConfigured) return { ok: false, error: 'Supabase is not configured.' };
   const mine = await supabase.from('friendships').select('friend_user_id').eq('user_id', userId);
@@ -203,18 +206,23 @@ export async function fetchPulseGraph(userId: string): Promise<DataResult<PulseG
   if (!ids.length) return { ok: true, data: { people: [], edges: [] } };
   const [profs, links] = await Promise.all([
     supabase.from('profiles').select(PROFILE_SELECT).in('user_id', ids).eq('kind', 'personal'),
-    supabase.from('friendships').select('user_id,friend_user_id').in('user_id', ids).in('friend_user_id', ids),
+    supabase.rpc('my_friend_links'),
   ]);
   if (profs.error) return { ok: false, error: profs.error.message };
   const people = ((profs.data ?? []) as CognationProfile[])
     .map(cleanProfile)
     // Leave out every seed/ops account (Demo), not just Sage.
     .filter((p) => p.seed_fleet_id !== SAGE_FLEET_ID && !p.seed_fleet_id && !isDemoAccount(p.account_kind));
+  // Lines only between people already on the ring; if the function is not
+  // installed yet (or errors), the ring still shows with no lines.
+  const userByProfile = new Map(people.map((p) => [p.id, p.user_id]));
+  const linkRows = (links.error ? [] : (links.data ?? [])) as { a_profile_id: string; b_profile_id: string }[];
   const seen = new Set<string>();
   const edges: [string, string][] = [];
-  for (const l of links.data ?? []) {
-    const a = String(l.user_id);
-    const b = String(l.friend_user_id);
+  for (const l of linkRows) {
+    const a = userByProfile.get(String(l.a_profile_id));
+    const b = userByProfile.get(String(l.b_profile_id));
+    if (!a || !b || a === b) continue;
     const k = a < b ? `${a}|${b}` : `${b}|${a}`;
     if (!seen.has(k)) {
       seen.add(k);
