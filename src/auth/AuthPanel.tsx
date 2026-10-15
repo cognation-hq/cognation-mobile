@@ -172,7 +172,8 @@ export function AuthPanel() {
 
       {mode === 'signIn' ? (
         <Pressable
-          style={styles.switchRow}
+          style={[styles.switchRow, styles.tapTarget]}
+          hitSlop={8}
           accessibilityRole="link"
           onPress={() => {
             void Linking.openURL('https://cognation-3md.pages.dev/reset-password');
@@ -272,6 +273,7 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
   },
+  tapTarget: { minHeight: 44, justifyContent: 'center' },
   switchRow: {
     marginTop: 16,
     alignItems: 'center',
